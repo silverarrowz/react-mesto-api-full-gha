@@ -1,0 +1,10 @@
+.auth__form-item {
+    background-color: #000;
+    color: #fff;
+    border-bottom: 2px solid #ccc;
+}
+
+.auth__form-item:focus {
+    outline: none;
+    border-bottom: 2px solid #fff;
+  }

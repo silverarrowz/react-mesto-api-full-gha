@@ -1,5 +1,3 @@
-import React from "react";
-
 function ImagePopup(props) {
     return (
         <section className={`popup popup_type_image-preview ${props.isOpen && 'popup_opened'}`}>

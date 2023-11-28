@@ -1,9 +1,8 @@
-import React from "react";
-
 function PopupWithForm(props) {
+
     return (
         <section className={`popup popup_type_${props.name} ${props.isOpen && 'popup_opened'}`}>
-            <div className="popup__container">
+            <div className={`popup__container popup__container_type_${props.type}`}>
                 <button
                     className="popup__close-btn"
                     type="button"
@@ -19,7 +18,7 @@ function PopupWithForm(props) {
                     noValidate>
                     {props.children}
                     <button
-                        className="form__save-btn"
+                        className={`form__save-btn ${props.isSubmitBtnDisabled && 'form__save-btn_disabled'}`}
                         type="submit"
                         name="popupBtn"
                         aria-label={props.buttonText}>
