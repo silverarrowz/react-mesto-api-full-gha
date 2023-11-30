@@ -1,35 +1,12 @@
-import { useState } from "react";
-import * as api from "../utils/apiAuth";
-import { useNavigate } from "react-router-dom";
 import { useFormAndValidation } from "../hooks/useFormAndValidation";
 
-const Login = ({ handleLogin, setUserEmail, setInfoToolTipOpen, setAuthSuccess }) => {
+const Login = ({ onLogin, isLoading }) => {
 
-    const { values, handleChange, errors, resetForm, isSubmitBtnDisabled, setSubmitBtnDisabled } = useFormAndValidation();
-    const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+    const { values, handleChange, errors, isSubmitBtnDisabled } = useFormAndValidation();
 
-    const handleSubmit = (e) => {
-        setIsLoading(true);
+    function handleSubmit(e) {
         e.preventDefault();
-        api.authorize(values.email, values.password)
-            .then((data) => {
-                if (data) {
-                    setUserEmail(values.email);
-                    handleLogin();
-                    navigate("/");
-                    localStorage.setItem("jwt", data.token);
-                }
-            })
-            .catch((err) => {
-                setAuthSuccess(false);
-                setInfoToolTipOpen(true);
-                console.error(err);
-            })
-            .finally(() => {
-                resetForm();
-                setIsLoading(false);
-            })
+        onLogin(values.email, values.password);
     }
 
     return (

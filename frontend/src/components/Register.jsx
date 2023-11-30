@@ -1,34 +1,14 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import * as api from "../utils/apiAuth";
+import { Link } from "react-router-dom";
 import { useFormAndValidation } from "../hooks/useFormAndValidation";
 
-const Register = ({ setInfoToolTipOpen, setAuthSuccess }) => {
+const Register = ({ onRegister, isLoading }) => {
 
-    const { values, handleChange, errors, resetForm, isSubmitBtnDisabled } = useFormAndValidation();
-    const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
-
-    const handleSubmit = (e) => {
-        setIsLoading(true);
+    function handleSubmit(e) {
         e.preventDefault();
-        api.register(values.email, values.password)
-            .then((data) => {
-                if (data) {
-                    setAuthSuccess(true)
-                    navigate("/sign-in", { replace: true });
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-                setAuthSuccess(false);
-            })
-            .finally(() => {
-                resetForm();
-                setIsLoading(false);
-                setInfoToolTipOpen(true);
-            })
+        onRegister(values.email, values.password);
     }
+
+    const { values, handleChange, errors, isSubmitBtnDisabled } = useFormAndValidation();
 
     return (
         <div className="auth__container">
@@ -72,6 +52,12 @@ const Register = ({ setInfoToolTipOpen, setAuthSuccess }) => {
                         {errors.password}
                     </span>
                 </label>
+                {/* <button
+                    className={`form__save-btn auth__submit-btn`}
+                    type="submit"
+                    aria-label="Зарегистрироваться">
+                    Зарегистрироваться
+                </button> */}
 
                 <button
                     className={`form__save-btn auth__submit-btn ${isSubmitBtnDisabled && 'form__save-btn_disabled'}`}
@@ -79,6 +65,7 @@ const Register = ({ setInfoToolTipOpen, setAuthSuccess }) => {
                     aria-label="Зарегистрироваться">
                     {isLoading ? 'Подождите...' : 'Зарегистрироваться'}
                 </button>
+
             </form>
             <Link to="/sign-in" className="auth__signin-link">Уже зарегистрированы? Войти</Link>
         </div>

@@ -1,4 +1,4 @@
-export const BASE_URL = "https://auth.nomoreparties.co";
+export const BASE_URL = "http://localhost:4000";
 
 const checkResponse = (res) => {
     return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
@@ -15,7 +15,7 @@ export const register = (email, password) => {
         .then(res => checkResponse(res));
 }
 
-export const authorize = (email, password) => {
+export const login = (email, password) => {
     return fetch(`${BASE_URL}/signin`, {
         method: "POST",
         headers: {

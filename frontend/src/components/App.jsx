@@ -28,35 +28,6 @@ function App() {
   const [isInfoToolTipOpen, setInfoToolTipOpen] = useState(false);
   const [isAuthSuccess, setAuthSuccess] = useState(false);
 
-  const tokenCheck = () => {
-    const jwt = localStorage.getItem("jwt");
-    auth.checkToken(jwt)
-      .then((data) => {
-        if (!data) {
-          return;
-        }
-        setLoggedIn(true);
-        setUserEmail(data.data.email);
-        navigate("/");
-      })
-      .catch(
-        (err) => {
-          console.error(err);
-          setLoggedIn(false)
-        });
-  }
-
-  useEffect(() => {
-    tokenCheck();
-    // eslint-disable-next-line
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    setLoggedIn(false);
-    navigate("/sign-in");
-  }
-
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -68,16 +39,113 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // Проверяем наличие токена в LS
+
   useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCardsData()])
-      .then(([userInfo, cardsData]) => {
-        setCurrentUser(userInfo);
-        setCards(cardsData);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    if (localStorage.getItem('token')) {
+      const token = localStorage.getItem('token');
+      auth.checkToken(token)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            setUserEmail(res.email);
+            navigate('/', { replace: true });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
+  // Запрашиваем данные пользователя и карточки
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (isLoggedIn) {
+      api.getUserInfo(token)
+        .then((userData) => {
+          setCurrentUser(userData);
+          console.log(userData);
+          setUserEmail(userData.email);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (isLoggedIn) {
+      api.getCardsData(token)
+        .then((cards) => {
+          setCards(cards.reverse());
+        })
+        .catch((err) => console.log(err))
+    }
+  }, [isLoggedIn]);
+
+  // Регистрация и авторизация новых пользователей
+
+  function handleRegister(email, password) {
+    setIsLoading(true);
+    auth.register(email, password)
+      .then(res => {
+        if (res) {
+          setAuthSuccess(true);
+          setInfoToolTipOpen(true);
+          navigate('/signin', { replace: true });
+        }
+      })
+      .catch(err => {
+        setAuthSuccess(false);
+        setInfoToolTipOpen(true);
+        console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      })
+  }
+
+  function handleLogin(email, password) {
+    setIsLoading(true);
+    auth.login(email, password)
+      .then(res => {
+        if (res) {
+          setLoggedIn(true);
+          localStorage.setItem('token', res.token);
+          setUserEmail(email);
+          navigate('/', { replace: true });
+        }
+      })
+      .catch(err => {
+        setAuthSuccess(false);
+        setInfoToolTipOpen(true);
+        console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      })
+  }
+
+  const handleLogout = () => {
+    setLoggedIn(false);
+    localStorage.removeItem("token");
+    navigate("/signin");
+  }
+
+
+  // useEffect(() => {
+  //   Promise.all([api.getUserInfo(), api.getCardsData()])
+  //     .then(([userInfo, cardsData]) => {
+  //       setCurrentUser(userInfo);
+  //       setCards(cardsData);
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //     });
+  // }, []);
 
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
@@ -115,7 +183,7 @@ function App() {
   }
 
   function handleCardLikeClick(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     api
       .changeLikeStatus(card._id, !isLiked)
       .then((cardLiked) => {
@@ -193,23 +261,16 @@ function App() {
             } />
 
             <Route
-              path="/sign-in"
-              element={<Login
-                handleLogin={() => setLoggedIn(true)}
-                setUserEmail={setUserEmail}
-                setAuthSuccess={setAuthSuccess}
-                setInfoToolTipOpen={setInfoToolTipOpen}
-              />} />
+              path="/signin"
+              element={<Login onLogin={handleLogin} isLoading={isLoading} />} />
 
             <Route
-              path="/sign-up"
-              element={<Register
-                setInfoToolTipOpen={setInfoToolTipOpen}
-                setAuthSuccess={setAuthSuccess} />} />
+              path="/signup"
+              element={<Register onRegister={handleRegister} isLoading={isLoading} />} />
 
             <Route
               path="/*"
-              element={<Navigate to={isLoggedIn ? "/" : "/sign-in"} replace />} />
+              element={<Navigate to={isLoggedIn ? "/" : "/signin"} replace />} />
           </Routes>
 
           <Footer />
