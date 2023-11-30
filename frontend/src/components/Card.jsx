@@ -12,8 +12,7 @@ function Card(card) {
     );
 
     function handleClick() {
-        card.onClick(card); 
-        console.log(card);
+        card.onClick(card);
     }
 
     function handleDeleteClick() {
