@@ -4,6 +4,7 @@ const { errors } = require('celebrate');
 const cors = require('cors');
 const router = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 4000, DB_PATH = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
@@ -19,7 +20,12 @@ mongoose.connect(DB_PATH, {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(requestLogger);
+
 app.use(router);
+
+app.use(errorLogger);
+
 app.use(errors());
 app.use(errorHandler);
 

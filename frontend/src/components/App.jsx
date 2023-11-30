@@ -65,28 +65,17 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (isLoggedIn) {
-      api.getUserInfo(token)
-        .then((userData) => {
-          setCurrentUser(userData);
-          console.log(userData);
-          setUserEmail(userData.email);
+      Promise.all([api.getUserInfo(token), api.getCardsData(token)])
+        .then(([userInfo, cardsData]) => {
+          setCurrentUser(userInfo);
+          setUserEmail(userInfo.email);
+          setCards(cardsData.reverse());
         })
-        .catch((err) => console.log(err));
+        .catch(error => {
+          console.error(error);
+        });
     }
   }, [isLoggedIn]);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (isLoggedIn) {
-      api.getCardsData(token)
-        .then((cards) => {
-          setCards(cards.reverse());
-        })
-        .catch((err) => console.log(err))
-    }
-  }, [isLoggedIn]);
-
-  // Регистрация и авторизация новых пользователей
 
   function handleRegister(email, password) {
     setIsLoading(true);
@@ -134,18 +123,6 @@ function App() {
     localStorage.removeItem("token");
     navigate("/signin");
   }
-
-
-  // useEffect(() => {
-  //   Promise.all([api.getUserInfo(), api.getCardsData()])
-  //     .then(([userInfo, cardsData]) => {
-  //       setCurrentUser(userInfo);
-  //       setCards(cardsData);
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     });
-  // }, []);
 
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
@@ -238,6 +215,22 @@ function App() {
         setIsLoading(false);
       });
   }
+
+  const isOpen = isEditAvatarPopupOpen|| isEditProfilePopupOpen || isAddPlacePopupOpen || isPopupWithImageOpen;
+
+  useEffect(() => {
+    function closeByEscape(evt) {
+      if(evt.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+    if(isOpen) { 
+      document.addEventListener('keydown', closeByEscape);
+      return () => {
+        document.removeEventListener('keydown', closeByEscape);
+      }
+    }
+  }, [isOpen])
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
