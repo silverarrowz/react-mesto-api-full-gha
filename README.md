@@ -9,7 +9,7 @@
 
 ## Ссылки на проект
 
-IP-адрес 158.160.69.113
+IP 158.160.69.113
 
 Frontend https://projectmestorus.nomoredomainsmonster.ru
 
