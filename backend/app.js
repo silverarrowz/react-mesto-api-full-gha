@@ -8,7 +8,7 @@ const router = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 4000, DB_PATH = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3000, DB_PATH = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
 
 app.use(cors({ origin: ['https://projectmestorus.nomoredomainsmonster.ru', 'http://projectmestorus.nomoredomainsmonster.ru', 'http://localhost:3000'] }));
