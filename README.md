@@ -9,8 +9,8 @@
 
 ## Ссылки на проект
 
-IP-адрес x.x.x.x
+IP-адрес 158.160.69.113
 
-Frontend https://...
+Frontend https://projectmestorus.nomoredomainsmonster.ru
 
-Backend https://...
+Backend https://api.projectmestorus.nomoredomainsmonster.ru
